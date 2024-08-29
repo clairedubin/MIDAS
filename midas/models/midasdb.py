@@ -348,9 +348,6 @@ def _fetch_file_from_s3(packed_args):
     if not os.path.isdir(local_dir):
         command(f"mkdir -p {local_dir}")
 
-    if not os.path.exists(local_path):
-        print('{} does not exist; will attempt download from s3'.format(local_path))
-
     if os.path.exists(local_path):
         return local_path
     if s3_path.startswith("s3://"):
