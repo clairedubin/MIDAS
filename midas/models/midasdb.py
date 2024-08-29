@@ -345,10 +345,12 @@ def _fetch_file_from_s3(packed_args):
     # local_path: single-file or single-folder
     # local_dir: parent directory of local_path
     # s3_path: https or s3 link of tarball of LZ4 filea
-    print(local_path)
-    print(local_dir)
     if not os.path.isdir(local_dir):
         command(f"mkdir -p {local_dir}")
+
+    if not os.path.exists(local_path):
+        print('{} does not exist; will attempt download from s3'.format(local_path))
+
     if os.path.exists(local_path):
         return local_path
     if s3_path.startswith("s3://"):
