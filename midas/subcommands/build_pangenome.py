@@ -94,7 +94,8 @@ def clean_centroids(percent_id, centroids_fp):
     return output_ambiguous, output_clean
 
 
-def vsearch(percent_id, genes, num_threads=num_vcpu):
+def vsearch(percent_id, genes, num_threads):
+    print('running vsearch with {} threads'.format(num_threads))
     centroids = f"centroids.{percent_id}.ffn"
     uclust = f"uclust.{percent_id}.txt"
     if find_files(centroids) and find_files(uclust):
@@ -286,7 +287,7 @@ def build_pangenome_worker(args):
 
     # The initial clustering to max_percent takes longest.
     max_percent, lower_percents = CLUSTERING_PERCENTS[0], CLUSTERING_PERCENTS[1:]
-    cluster_files = {max_percent: vsearch(max_percent, "genes.ffn")}
+    cluster_files = {max_percent: vsearch(max_percent, "genes.ffn", args.num_threads)}
 
     # Check ambiguous bases of centroids.99
     c99_ambigous, c99_clean = clean_centroids(max_percent, cluster_files[max_percent][0])
@@ -294,7 +295,7 @@ def build_pangenome_worker(args):
     # TODO: we only implement recluster on HPC; and we highly recommend recluster
     if not args.recluster:
         # Reclustering of the max_percent centroids is usually quick, and can proceed in prallel.
-        recluster = lambda percent_id: vsearch(percent_id, cluster_files[max_percent][0])
+        recluster = lambda percent_id: vsearch(percent_id, cluster_files[max_percent][0], args.num_threads)
         cluster_files.update(hashmap(recluster, lower_percents))
 
     centroid_info = xref(cluster_files)
